@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Folder</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <button type="button" class="btn btn-dark mt-1" data-bs-toggle="modal"
+          data-bs-target="#addCategory">Добавить категорию папке
+  </button>
+  <button type="button" class="btn btn-dark mt-1" data-bs-toggle="modal"
+          data-bs-target="#addTask">Добавить задачу
+  </button>
+  <button type="button" class="btn btn-success mt-1" data-bs-toggle="modal"
+          data-bs-target="#editfolder">Редактировать папку
+  </button>
+
+  <button type="button" class="btn btn-danger mt-1" data-bs-toggle="modal"
+          data-bs-target="#deleteModal">Удалить папку
+  </button>
+
+  <form action="/editfolder" method="post">
+    <div class="modal fade" id="editfolder" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Переименовать папку</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Новое имя папки:</label>
+              <input name="name" type="text" class="form-control" th:value="${folder.name}">
+              <input name="id" type="hidden" class="form-control" th:value="${folder.id}">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть
+              </button>
+              <button class="btn btn-primary">Изменить</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+
+  <!-- Modal -->
+  <form action="/deletefolder" method="post">
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" > Вы уверены, что хотите удалить папку?</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            <input type="hidden" name="folder" th:value="${folder.id}">
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+            <button class="btn btn-primary"> Да </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <br>
+  <div class="card mt-3">
+    <div class="card-body">
+      <h3 th:text="${folder.name}"></h3>
+
+      <br>
+      <h4 class="text-primary">Категории папки:</h4>
+      <div th:each="cat : ${folder.categories}">
+        <form action="/deleteCategoryFromFolder" method="post">
+          <input type="hidden" name="cat_id" th:value="${cat.id}">
+          <input type="hidden" name="folder_id" th:value="${folder.id}">
+          <button class="btn btn-primary btn-sm m-1" th:text="' X ' + ${cat.name}"></button>
+        </form>
+      </div>
+    </div>
+    <div class="card-footer">
+      <h3 class="text-danger" th:text="${tasks.isEmpty()}? 'В этой папке пока нет задач!'" ></h3>
+      <div th:style="${tasks.isEmpty()}? 'display:none'">
+        <table class="table table-striped table-hover">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Название задачи</th>
+            <th>Статус</th>
+            <th>Детали</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="task : ${tasks}">
+            <td th:text="${task.id}"></td>
+            <td th:text="${task.title}"></td>
+
+            <td th:switch="${task.status}">
+            <p class="text-warning" th:case="'0'">В процессе</p>
+            <p class="text-primary" th:case="'1'">Тестируется</p>
+            <p class="text-success" th:case="'2'">Согласована</p>
+            <p class="text-danger" th:case="'3'">Отменена</p>
+            </td>
+            <td>
+              <a th:href="${'/taskdetail/' + task.id}" class="btn btn-success">Детали</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <form th:action="${'/addCategories/'+folder.id}" method="post">
+    <div class="modal fade" id="addCategory" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Назначить категории для папки></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-striped table-hover">
+              <thead>
+              <tr>
+                <th>Выбрать</th>
+                <th>Название категории</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="cat : ${categories}">
+                <td><input type="checkbox" name="operators_name" th:value="${cat.id}"></td>
+                <td th:text="${cat.name}"></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+            </button>
+            <button class="btn btn-primary">Назначить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form action="/addTask" method="post">
+    <div class="modal fade" id="addTask" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Добавить задачу</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label">Название задачи:</label>
+            <input name="title" type="text" class="form-control">
+
+            <label class="form-label">Описание задачи:</label>
+            <textarea name="decription" type="text"
+                      class="form-control"> </textarea>
+            <input type="hidden" name="folder" th:value="${folder.id}">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+            </button>
+            <button class="btn btn-primary">Добавить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+
+</div>
+
+
+</body>
+</html>

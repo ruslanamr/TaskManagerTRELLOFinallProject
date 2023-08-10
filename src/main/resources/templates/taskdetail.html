@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Folder</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+  <br>
+  <div class="card mt-3">
+    <div class="card-body">
+      <h3 th:text="${taskdetail.title}"></h3>
+      <p th:text="${taskdetail.decription}"></p>
+      <p>Статус заявки:</p>
+      <div th:switch="${taskdetail.status}">
+        <p class="text-warning" th:case="'0'">В процессе</p>
+        <p class="text-primary" th:case="'1'">Тестируется</p>
+        <p class="text-success" th:case="'2'">Согласована</p>
+        <p class="text-danger" th:case="'3'">Отменена</p>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button type="button" class="btn btn-success mt-1" data-bs-toggle="modal"
+              data-bs-target="#editTask">Изменить задачу
+      </button>
+
+      <button type="button" class="btn btn-danger mt-1" data-bs-toggle="modal"
+              data-bs-target="#deleteModal">Уадилть задачу
+      </button>
+      <!-- Modal -->
+      <form action="/deletetask" method="post">
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5"> Вы уверены, что хотите удалить задачу?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                <input type="hidden" name="folder" th:value="${taskdetail.folder.id}">
+                <input type="hidden" name="id" th:value="${taskdetail.id}">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                <button class="btn btn-primary"> Да</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <form action="/editTask" method="post">
+        <div class="modal fade" id="editTask" tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+          <div class="modal-dialog modal-lg ">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5">Изменить задачу</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <label class="form-label">Название задачи:</label>
+                <input name="title" type="text" th:value="${taskdetail.title}" class="form-control">
+
+                <label class="form-label">Описание задачи:</label>
+                <textarea name="decription" type="text"
+                          class="form-control" th:text="${taskdetail.decription}"></textarea>
+
+                <label class="form-label">Название задачи:</label>
+                <select name="status" class="form-control">
+                  <option value="0">В процессе</option>
+                  <option value="1">Тестируется</option>
+                  <option value="2">Согласована</option>
+                  <option value="3">Отменена</option>
+                </select>
+                <input type="hidden" name="folder" th:value="${taskdetail.folder.id}">
+                <input type="hidden" name="id" th:value="${taskdetail.id}">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+                </button>
+                <button class="btn btn-primary">Изменить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <br>
+  <h4>Комментарии:</h4>
+  <br>
+  <div th:each="com : ${comments}">
+    <div class="card mt-3">
+      <div class="card-body">
+        <p th:text="${com.comment}"></p>
+      </div>
+    </div>
+  </div>
+  <br>
+  <button type="button" class="btn btn-light mt-1 btn-sm" data-bs-toggle="modal"
+          data-bs-target="#comment">Добавить комментарий
+  </button>
+
+  <form action="/addcomment" method="post">
+    <div class="modal fade" id="comment" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Добавить комментарий</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <textarea name="comment" type="text" class="form-control"></textarea>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="task_id" th:value="${taskdetail.id}">
+
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+            </button>
+            <button class="btn btn-primary">Добавить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+</html>
